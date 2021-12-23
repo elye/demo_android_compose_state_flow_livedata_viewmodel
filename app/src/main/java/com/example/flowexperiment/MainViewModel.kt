@@ -4,27 +4,32 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlin.reflect.KProperty
 
 @Suppress("UNCHECKED_CAST")
 class SafeMutableLiveData<T : Any>(
-    private val savedStateHandle: SavedStateHandle,
-    private val key: String,
-    private val initialValue: T
-) :
-    MutableLiveData<T>(savedStateHandle.getLiveData(key, initialValue).value ?: initialValue) {
+    savedStateHandle: SavedStateHandle,
+    key: String,
+    defaultValue: T
+) : MutableLiveData<T>(savedStateHandle.getLiveData(key, defaultValue).value) {
 
-    override fun getValue(): T = savedStateHandle.get<T>(key) ?: initialValue
+    private val mutableLiveData: MutableLiveData<T> =
+        savedStateHandle.getLiveData(key, defaultValue)
+
+    override fun getValue(): T = super.getValue() as T
     override fun setValue(value: T) {
         super.setValue(value)
-        savedStateHandle.set<T>(key, value)
+        mutableLiveData.value = value
     }
 
     override fun postValue(value: T) {
         super.postValue(value)
-        savedStateHandle.set<T>(key, value)
+        mutableLiveData.postValue(value)
     }
 }
 
@@ -73,7 +78,7 @@ class SaveableComposeState<T>(
 class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
 
     private val _liveData =
-        SafeMutableLiveData(savedStateHandle, "LiveKey", 0)
+        SafeMutableLiveData(savedStateHandle,"LiveKey", 0)
 
     val liveData: LiveData<Int> = _liveData
 
@@ -86,22 +91,22 @@ class MainViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         private set
 
     var saveableMutableComposeState
-        by SaveableComposeState(savedStateHandle, "ComposeKey", 0)
+            by SaveableComposeState(savedStateHandle, "ComposeKey", 0)
         private set
 
     fun triggerLiveData() {
-        _liveData.value++
+        ++_liveData.value
     }
 
     fun triggerComposeState() {
-        mutableComposeState++
+        ++mutableComposeState
     }
 
     fun triggerSaveableComposeState() {
-        saveableMutableComposeState++
+        ++saveableMutableComposeState
     }
 
     fun triggerStateFlow() {
-        _stateFlow.value++
+        ++_stateFlow.value
     }
 }
