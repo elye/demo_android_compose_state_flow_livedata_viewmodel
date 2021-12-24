@@ -14,9 +14,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.example.flowexperiment.ui.theme.FlowExperimentTheme
 
-class MainActivity : ComponentActivity() {
+class ComposeStateActivity : ComponentActivity() {
 
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: ComposeStateViewModel by viewModels()
 
     private var state by mutableStateOf(0)
 
@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Render(viewModel: MainViewModel) {
+    fun Render(viewModel: ComposeStateViewModel) {
 
         var rememberState by remember {
             mutableStateOf(0)
@@ -40,9 +40,6 @@ class MainActivity : ComponentActivity() {
         var rememberSaveableState by rememberSaveable {
             mutableStateOf(0)
         }
-        val liveDataResult = viewModel.liveData.observeAsState()
-
-        val liveDataFlowResult = viewModel.stateFlow.collectAsState()
 
         Column {
             Button(onClick = { state++ }) {
@@ -69,16 +66,6 @@ class MainActivity : ComponentActivity() {
                 Text(text = "Click Me!")
             }
             Text(text = "ViewModel Saveable Compose State: ${viewModel.saveableMutableComposeState}")
-
-            Button(onClick = { viewModel.triggerStateFlow() }) {
-                Text(text = "Click Me!")
-            }
-            Text(text = "StateFlow: ${liveDataFlowResult.value}")
-
-            Button(onClick = { viewModel.triggerLiveData() }) {
-                Text(text = "Click Me!")
-            }
-            Text(text = "LiveData ${liveDataResult.value}")
         }
     }
 }

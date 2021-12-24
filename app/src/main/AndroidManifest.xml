@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FlowExperiment">
         <activity
-            android:name=".MainActivity"
+            android:name=".LaunchActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.FlowExperiment.NoActionBar">
@@ -20,6 +20,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ComposeStateActivity"/>
+        <activity android:name=".FlowLiveBusyMainActivity"/>
     </application>
 
 </manifest>
