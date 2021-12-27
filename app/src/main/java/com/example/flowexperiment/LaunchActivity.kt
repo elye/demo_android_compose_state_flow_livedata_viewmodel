@@ -9,6 +9,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.lifecycle.*
 import com.example.flowexperiment.ui.theme.FlowExperimentTheme
 
 class LaunchActivity : ComponentActivity() {
@@ -33,6 +34,13 @@ class LaunchActivity : ComponentActivity() {
                             )
                         }) {
                             Text("Launch Flow vs Live Busy Main Experiment Activity")
+                        }
+                        Button(onClick = {
+                            startActivity(
+                                Intent(this@LaunchActivity, LifeCycleScopeActivity::class.java)
+                            )
+                        }) {
+                            Text("Launch Lifecycle Scope Experiment Activity")
                         }
                     }
                 }

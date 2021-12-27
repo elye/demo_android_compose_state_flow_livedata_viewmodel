@@ -22,6 +22,7 @@
         </activity>
         <activity android:name=".ComposeStateActivity"/>
         <activity android:name=".FlowLiveBusyMainActivity"/>
+        <activity android:name=".LifeCycleScopeActivity"/>
     </application>
 
 </manifest>
