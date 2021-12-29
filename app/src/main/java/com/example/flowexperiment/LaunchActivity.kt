@@ -42,6 +42,13 @@ class LaunchActivity : ComponentActivity() {
                         }) {
                             Text("Launch Lifecycle Scope Experiment Activity")
                         }
+                        Button(onClick = {
+                            startActivity(
+                                Intent(this@LaunchActivity, LiveDataTransformationActivity::class.java)
+                            )
+                        }) {
+                            Text("Launch Livedata Transformation Experiment Activity")
+                        }
                     }
                 }
             }
