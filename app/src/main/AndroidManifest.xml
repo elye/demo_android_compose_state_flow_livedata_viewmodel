@@ -25,6 +25,7 @@
         <activity android:name=".LifeCycleScopeActivity"/>
         <activity android:name=".LiveDataTransformationActivity"/>
         <activity android:name=".LiveDataCoroutineBuilderActivity"/>
+        <activity android:name=".LiveDataCoroutineBuilderMultipleEmissionActivity"/>
     </application>
 
 </manifest>

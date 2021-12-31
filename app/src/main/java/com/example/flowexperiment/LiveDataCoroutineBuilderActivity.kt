@@ -25,7 +25,6 @@ class LiveDataCoroutineBuilderActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Thread.sleep(1000)
         setContentView(R.layout.activity_livedatatransformation)
 
         viewModel.liveData.observe(this, changeObserver)

@@ -65,6 +65,14 @@ class LaunchActivity : ComponentActivity() {
                         }) {
                             Text("Launch Livedata Coroutine Builder Experiment Activity")
                         }
+                        Spacer(Modifier.height(10.dp))
+                        Button(onClick = {
+                            startActivity(
+                                Intent(this@LaunchActivity, LiveDataCoroutineBuilderMultipleEmissionActivity::class.java)
+                            )
+                        }) {
+                            Text("Launch Livedata Coroutine Builder Multiple Emission Experiment Activity")
+                        }
                     }
                 }
             }
