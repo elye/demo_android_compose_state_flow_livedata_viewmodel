@@ -38,7 +38,7 @@ class LiveDataCoroutineBuilderMultipleEmissionViewModel : ViewModel() {
     private val repository =
         LiveDataCoroutineBuilderMultipleEmissionRepository(viewModelScope.coroutineContext)
 
-    fun trigger() = liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+    fun trigger() = liveData(viewModelScope.coroutineContext + Dispatchers.IO, 2000) {
         emitSource(repository.liveDataSourceA)
         delay(2000)
         emitSource(repository.liveDataSourceB)
@@ -47,7 +47,7 @@ class LiveDataCoroutineBuilderMultipleEmissionViewModel : ViewModel() {
     }
 }
 
-class LiveDataCoroutineBuilderMultipleEmissionRepository(val coroutineContext: CoroutineContext) {
+class LiveDataCoroutineBuilderMultipleEmissionRepository(private val coroutineContext: CoroutineContext) {
 
     val liveDataSourceA: LiveData<String>
     get() = liveData(coroutineContext + Dispatchers.IO) {
