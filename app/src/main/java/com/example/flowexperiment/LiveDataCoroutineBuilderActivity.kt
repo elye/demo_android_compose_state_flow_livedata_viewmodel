@@ -7,11 +7,14 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
-class LiveDataTransformationActivity : AppCompatActivity() {
+class LiveDataCoroutineBuilderActivity : AppCompatActivity() {
 
-    private val viewModel: LiveDataTransformationViewModel by viewModels()
+    private val viewModel: LiveDataCoroutineBuilderViewModel by viewModels()
 
     private val changeObserver = Observer<String> { value ->
         value?.let {
@@ -22,6 +25,7 @@ class LiveDataTransformationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Thread.sleep(1000)
         setContentView(R.layout.activity_livedatatransformation)
 
         viewModel.liveData.observe(this, changeObserver)
@@ -32,16 +36,17 @@ class LiveDataTransformationActivity : AppCompatActivity() {
     }
 }
 
-class LiveDataTransformationViewModel : ViewModel() {
+class LiveDataCoroutineBuilderViewModel : ViewModel() {
 
-    private val repository = LiveDataTransformationRepository()
+    private val repository = LiveDataCoroutineBuilderRepository(viewModelScope.coroutineContext)
 
     val liveData: LiveData<String> =
-        Transformations.map(repository.liveData) {
-            Log.d("Track", "ViewModel Map: ${Thread.currentThread().name}")
-            it.toString().padStart(8, '0')
+        Transformations.switchMap(repository.liveData) {
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                Log.d("Track", "ViewModel Map: ${Thread.currentThread().name}")
+                emit(it.toString().padStart(8, '0'))
+            }
         }
-
 
     fun trigger() {
         viewModelScope.launch(Dispatchers.Default) {
@@ -50,12 +55,13 @@ class LiveDataTransformationViewModel : ViewModel() {
     }
 }
 
-class LiveDataTransformationRepository() {
-    private val _liveData = MutableLiveData(0)
-    val liveData: LiveData<Int> = _liveData
+class LiveDataCoroutineBuilderRepository(coroutineContext: CoroutineContext) {
+    private val _stateFlow = MutableStateFlow(0)
+
+    val liveData: LiveData<Int> = _stateFlow.asLiveData(coroutineContext + Dispatchers.IO)
 
     fun getData() {
         Log.d("Track", "Repository Fetch: ${Thread.currentThread().name}")
-        _liveData.postValue((1..1000).random())
+        _stateFlow.value++
     }
 }

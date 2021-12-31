@@ -24,6 +24,7 @@
         <activity android:name=".FlowLiveBusyMainActivity"/>
         <activity android:name=".LifeCycleScopeActivity"/>
         <activity android:name=".LiveDataTransformationActivity"/>
+        <activity android:name=".LiveDataCoroutineBuilderActivity"/>
     </application>
 
 </manifest>
