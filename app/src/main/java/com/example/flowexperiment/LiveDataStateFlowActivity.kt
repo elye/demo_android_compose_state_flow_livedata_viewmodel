@@ -63,7 +63,6 @@ class LiveDataStateFlowActivity : AppCompatActivity() {
                 }
         }
 
-
         findViewById<Button>(R.id.my_button_live)
             .setOnClickListener { viewModel.triggerLive() }
 
@@ -87,8 +86,18 @@ class LiveDataStateFlowViewModel(savedStateHandle: SavedStateHandle) : ViewModel
         )
     )
 
+    init {
+        if (!savedStateHandle.contains("TriggerLiveDataKey")) triggerLive()
+        if (!savedStateHandle.contains("TriggerStateFlowKey")) triggerState()
+    }
+
     val liveData: LiveData<String> = liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-        val data = savedStateHandle.get("LoadLiveDataKey") ?: repository.loadDataLive()
+        suspend fun loading(): String {
+            emit("Nothing")
+            return repository.loadDataLive()
+        }
+
+        val data = savedStateHandle.get("LoadLiveDataKey") ?: loading()
         Log.d("TrackLoadLiveData", "ViewModel ($data): ${Thread.currentThread().name}")
         savedStateHandle.set("LoadLiveDataKey", data)
         emit(data)
@@ -162,13 +171,15 @@ class LiveDataStateFlowRepository(
         return value
     }
 
-    fun getLiveData() {
+    suspend fun getLiveData() {
+        delay(2000)
         val value = generateRandom()
         Log.d("TrackTriggerLiveData", "Repository ($value): ${Thread.currentThread().name}")
         triggerLive.postValue(value)
     }
 
-    fun getStateData() {
+    suspend fun getStateData() {
+        delay(2000)
         val value = generateRandom()
         Log.d("TrackTriggerStateFlow", "Repository ($value): ${Thread.currentThread().name}")
         triggerState.value = value
