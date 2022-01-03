@@ -16,6 +16,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.switchMap
+import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
@@ -71,19 +72,32 @@ class LiveDataStateFlowActivity : AppCompatActivity() {
     }
 }
 
-class LiveDataStateFlowViewModel : ViewModel() {
+class LiveDataStateFlowViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
 
-    private val repository = LiveDataStateFlowRepository()
+    private val repository = LiveDataStateFlowRepository(
+        SafeMutableLiveData(
+            savedStateHandle,
+            "TriggerLiveDataKey",
+            "Initial"
+        ),
+        SaveableMutableSaveStateFlow(
+            savedStateHandle,
+            "TriggerStateFlowKey",
+            "Initial"
+        )
+    )
 
     val liveData: LiveData<String> = liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-        val data = repository.loadDataLive()
+        val data = savedStateHandle.get("LoadLiveDataKey") ?: repository.loadDataLive()
         Log.d("TrackLoadLiveData", "ViewModel ($data): ${Thread.currentThread().name}")
+        savedStateHandle.set("LoadLiveDataKey", data)
         emit(data)
     }
 
     val stateFlow = flow {
-        val data = repository.loadDataState()
+        val data = savedStateHandle.get("LoadStateFlowKey") ?: repository.loadDataState()
         Log.d("TrackLoadStateFlow", "ViewModel ($data): ${Thread.currentThread().name}")
+        savedStateHandle.set("LoadStateFlowKey", data)
         emit(data)
     }.stateIn(
         scope = viewModelScope + Dispatchers.IO,
@@ -102,7 +116,7 @@ class LiveDataStateFlowViewModel : ViewModel() {
         }
 
     val stateFlowTrigger = repository
-        .triggerState
+        .triggerState.asStateFlow()
         .mapLatest {
             Log.d("TrackTriggerStateFlow", "ViewModel ($it): ${Thread.currentThread().name}")
             it
@@ -125,9 +139,12 @@ class LiveDataStateFlowViewModel : ViewModel() {
     }
 }
 
-class LiveDataStateFlowRepository {
-    val triggerLive = MutableLiveData("Initial")
-    val triggerState = MutableStateFlow("Initial")
+class LiveDataStateFlowRepository(
+    liveData: MutableLiveData<String>,
+    stateFlow: SaveableMutableSaveStateFlow<String>
+) {
+    val triggerLive = liveData
+    val triggerState = stateFlow
 
     suspend fun loadDataLive(): String {
         delay(2000)
