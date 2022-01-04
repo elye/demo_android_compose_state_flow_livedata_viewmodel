@@ -76,6 +76,16 @@ class LiveDataStateFlowViewModel(savedStateHandle: SavedStateHandle) : ViewModel
     private val repository = LiveDataStateFlowRepository(
         SafeMutableLiveData(
             savedStateHandle,
+            "LoadLiveDataKey",
+            "Initial"
+        ),
+        SaveableMutableSaveStateFlow(
+            savedStateHandle,
+            "LoadStateFlowKey",
+            "Initial"
+        ),
+        SafeMutableLiveData(
+            savedStateHandle,
             "TriggerLiveDataKey",
             "Initial"
         ),
@@ -89,30 +99,30 @@ class LiveDataStateFlowViewModel(savedStateHandle: SavedStateHandle) : ViewModel
     init {
         if (!savedStateHandle.contains("TriggerLiveDataKey")) triggerLive()
         if (!savedStateHandle.contains("TriggerStateFlowKey")) triggerState()
+        if (!savedStateHandle.contains("LoadLiveDataKey")) loadLive()
+        if (!savedStateHandle.contains("LoadStateFlowKey")) loadState()
     }
 
-    val liveData: LiveData<String> = liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-        suspend fun loading(): String {
-            emit("Nothing")
-            return repository.loadDataLive()
+    val liveData: LiveData<String> = repository
+        .loadLive
+        .distinctUntilChanged()
+        .switchMap {
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                Log.d("TrackLoadLiveData", "ViewModel ($it): ${Thread.currentThread().name}")
+                emit(it)
+            }
         }
 
-        val data = savedStateHandle.get("LoadLiveDataKey") ?: loading()
-        Log.d("TrackLoadLiveData", "ViewModel ($data): ${Thread.currentThread().name}")
-        savedStateHandle.set("LoadLiveDataKey", data)
-        emit(data)
-    }
-
-    val stateFlow = flow {
-        val data = savedStateHandle.get("LoadStateFlowKey") ?: repository.loadDataState()
-        Log.d("TrackLoadStateFlow", "ViewModel ($data): ${Thread.currentThread().name}")
-        savedStateHandle.set("LoadStateFlowKey", data)
-        emit(data)
-    }.stateIn(
-        scope = viewModelScope + Dispatchers.IO,
-        started = SharingStarted.WhileSubscribed(5000L),
-        initialValue = "Nothing"
-    )
+    val stateFlow = repository
+        .loadState.asStateFlow()
+        .mapLatest {
+            Log.d("TrackLoadStateFlow", "ViewModel ($it): ${Thread.currentThread().name}")
+            it
+        }.stateIn(
+            scope = viewModelScope + Dispatchers.IO,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = "Nothing"
+        )
 
     val liveDataTrigger: LiveData<String> = repository
         .triggerLive
@@ -135,40 +145,57 @@ class LiveDataStateFlowViewModel(savedStateHandle: SavedStateHandle) : ViewModel
             initialValue = "Nothing"
         )
 
+    fun loadLive() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.loadDataLive()
+        }
+    }
+
+    fun loadState() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.loadDataState()
+        }
+    }
+
     fun triggerLive() {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.getLiveData()
         }
     }
 
     fun triggerState() {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.getStateData()
         }
     }
 }
 
 class LiveDataStateFlowRepository(
-    liveData: MutableLiveData<String>,
-    stateFlow: SaveableMutableSaveStateFlow<String>
+    loadLiveData: MutableLiveData<String>,
+    loadStateFlow: SaveableMutableSaveStateFlow<String>,
+    triggerLiveData: MutableLiveData<String>,
+    triggerStateFlow: SaveableMutableSaveStateFlow<String>
 ) {
-    val triggerLive = liveData
-    val triggerState = stateFlow
+    val triggerLive = triggerLiveData
+    val triggerState = triggerStateFlow
 
-    suspend fun loadDataLive(): String {
+    val loadLive = loadLiveData
+    val loadState = loadStateFlow
+
+    suspend fun loadDataLive() {
         delay(2000)
         val value = generateRandom()
         Log.d("TrackLoadLiveData", "Repository ($value): ${Thread.currentThread().name}")
-        return value
+        loadLive.postValue(value)
     }
 
     private fun generateRandom() = (1..1000).random().toString().padEnd(4, '0')
 
-    suspend fun loadDataState(): String {
+    suspend fun loadDataState() {
         delay(2000)
         val value = generateRandom()
         Log.d("TrackLoadStateFlow", "Repository ($value): ${Thread.currentThread().name}")
-        return value
+        loadState.value = value
     }
 
     suspend fun getLiveData() {
