@@ -32,9 +32,9 @@ class LiveDataStateFlowActivity : AppCompatActivity() {
             .liveData
             .distinctUntilChanged()
             .observe(this) {
-            Log.d("TrackLoadLiveData", "Activity ($it): ${Thread.currentThread().name}")
-            findViewById<TextView>(R.id.my_text_live).text = it
-        }
+                Log.d("TrackLoadLiveData", "Activity ($it): ${Thread.currentThread().name}")
+                findViewById<TextView>(R.id.my_text_live).text = it
+            }
 
         lifecycleScope.launchWhenStarted {
             viewModel.stateFlow.flowWithLifecycle(
@@ -52,9 +52,9 @@ class LiveDataStateFlowActivity : AppCompatActivity() {
             .liveDataTrigger
             .distinctUntilChanged()
             .observe(this) {
-            Log.d("TrackTriggerLiveData", "Activity ($it): ${Thread.currentThread().name}")
-            findViewById<Button>(R.id.my_button_live).text = it
-        }
+                Log.d("TrackTriggerLiveData", "Activity ($it): ${Thread.currentThread().name}")
+                findViewById<Button>(R.id.my_button_live).text = it
+            }
 
         lifecycleScope.launchWhenStarted {
             viewModel.stateFlowTrigger
