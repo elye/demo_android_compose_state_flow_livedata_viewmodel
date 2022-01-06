@@ -28,7 +28,10 @@ class LiveDataStateFlowActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_livedata_stateflow)
 
-        viewModel.liveData.observe(this) {
+        viewModel
+            .liveData
+            .distinctUntilChanged()
+            .observe(this) {
             Log.d("TrackLoadLiveData", "Activity ($it): ${Thread.currentThread().name}")
             findViewById<TextView>(R.id.my_text_live).text = it
         }
@@ -45,7 +48,10 @@ class LiveDataStateFlowActivity : AppCompatActivity() {
                 }
         }
 
-        viewModel.liveDataTrigger.observe(this) {
+        viewModel
+            .liveDataTrigger
+            .distinctUntilChanged()
+            .observe(this) {
             Log.d("TrackTriggerLiveData", "Activity ($it): ${Thread.currentThread().name}")
             findViewById<Button>(R.id.my_button_live).text = it
         }
