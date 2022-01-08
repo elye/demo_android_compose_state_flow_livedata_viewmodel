@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FlowExperiment">
         <activity
+            android:name=".FragmentLifecycleScopeActivity"
+            android:exported="false" />
+        <activity
             android:name=".LaunchActivity"
             android:exported="true"
             android:label="@string/app_name"
@@ -20,13 +23,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ComposeStateActivity"/>
-        <activity android:name=".FlowLiveBusyMainActivity"/>
-        <activity android:name=".LifeCycleScopeActivity"/>
-        <activity android:name=".LiveDataTransformationActivity"/>
-        <activity android:name=".LiveDataCoroutineBuilderActivity"/>
-        <activity android:name=".LiveDataCoroutineBuilderMultipleEmissionActivity"/>
-        <activity android:name=".LiveDataStateFlowActivity"/>
+        <activity android:name=".ComposeStateActivity" />
+        <activity android:name=".FlowLiveBusyMainActivity" />
+        <activity android:name=".LifeCycleScopeActivity" />
+        <activity android:name=".LiveDataTransformationActivity" />
+        <activity android:name=".LiveDataCoroutineBuilderActivity" />
+        <activity android:name=".LiveDataCoroutineBuilderMultipleEmissionActivity" />
+        <activity android:name=".LiveDataStateFlowActivity" />
     </application>
 
 </manifest>

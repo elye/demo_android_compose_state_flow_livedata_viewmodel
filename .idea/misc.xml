@@ -3,9 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/layout/activity_fragment_lifecycle_scope.xml" value="0.1331521739130435" />
         <entry key="app/src/main/res/layout/activity_livedata_stateflow.xml" value="0.1359375" />
         <entry key="app/src/main/res/layout/activity_livedatatransformation.xml" value="0.12760416666666666" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.10144927536231885" />
+        <entry key="app/src/main/res/layout/fragment_first.xml" value="0.1331521739130435" />
       </map>
     </option>
   </component>

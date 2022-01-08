@@ -52,6 +52,14 @@ class LaunchActivity : ComponentActivity() {
                         Spacer(Modifier.height(10.dp))
                         Button(onClick = {
                             startActivity(
+                                Intent(this@LaunchActivity, FragmentLifecycleScopeActivity::class.java)
+                            )
+                        }) {
+                            Text("Launch Fragment Lifecycle Scope Experiment Activity")
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        Button(onClick = {
+                            startActivity(
                                 Intent(this@LaunchActivity, LiveDataTransformationActivity::class.java)
                             )
                         }) {
